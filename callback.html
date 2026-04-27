@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok Auth Callback – Earphone World JP</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 680px; margin: 60px auto; padding: 0 24px; color: #111; line-height: 1.7; }
+  h1 { font-size: 1.3rem; margin-bottom: 24px; }
+  .code-box { background: #e8f4e8; border: 1px solid #4caf50; border-radius: 8px; padding: 16px; margin: 16px 0; word-break: break-all; font-family: monospace; font-size: 0.9rem; }
+  .error-box { background: #fdecea; border: 1px solid #e53935; border-radius: 8px; padding: 16px; margin: 16px 0; }
+  .label { font-size: 0.8rem; color: #555; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<h1>TikTok Authorization</h1>
+<div id="content"></div>
+<script>
+  function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(str || ''));
+    return d.innerHTML;
+  }
+  var params = new URLSearchParams(window.location.search);
+  var code = params.get('code');
+  var error = params.get('error');
+  var state = params.get('state');
+  var div = document.getElementById('content');
+
+  if (code) {
+    var p = document.createElement('p');
+    p.textContent = 'Authorization successful. Copy the code below:';
+    var label = document.createElement('div');
+    label.className = 'label';
+    label.textContent = 'code:';
+    var box = document.createElement('div');
+    box.className = 'code-box';
+    box.textContent = code;
+    var stateP = document.createElement('p');
+    stateP.style.fontSize = '0.85rem';
+    stateP.style.color = '#777';
+    stateP.textContent = 'State: ' + (state || 'none');
+    div.appendChild(p);
+    div.appendChild(label);
+    div.appendChild(box);
+    div.appendChild(stateP);
+  } else if (error) {
+    var box = document.createElement('div');
+    box.className = 'error-box';
+    var ep = document.createElement('p');
+    ep.textContent = 'Error: ' + error;
+    var desc = document.createElement('p');
+    desc.style.fontSize = '0.875rem';
+    desc.textContent = params.get('error_description') || '';
+    box.appendChild(ep);
+    box.appendChild(desc);
+    div.appendChild(box);
+  } else {
+    var pre = document.createElement('pre');
+    pre.style.cssText = 'background:#f5f5f5;padding:16px;border-radius:8px;overflow-x:auto;font-size:13px;';
+    pre.textContent = JSON.stringify(Object.fromEntries(params), null, 2);
+    div.appendChild(pre);
+  }
+</script>
+</body>
+</html>

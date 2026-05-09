@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earphone World JP - Slideshow Publisher</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    background: linear-gradient(160deg, #0f0f1a 0%, #1a1230 100%);
+    color: #e8e8f0;
+    min-height: 100vh;
+    margin: 0;
+    padding: 24px;
+    line-height: 1.6;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; margin: 0 0 8px; }
+  .subtitle { color: rgba(255,255,255,0.55); margin: 0 0 32px; font-size: 0.95rem; }
+  .panel {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .panel h2 { font-size: 1.05rem; margin: 0 0 12px; color: #b9b3d8; font-weight: 500; }
+  button {
+    background: linear-gradient(135deg, #9070f8, #5030c0);
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+    font-weight: 500;
+  }
+  button:hover { transform: translateY(-1px); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .secondary {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #d0d0e0;
+  }
+  textarea, input[type="text"] {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #e8e8f0;
+    font-family: inherit;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    background: rgba(120,255,150,0.15);
+    color: #80f5a0;
+    margin-left: 8px;
+  }
+  .badge.warn { background: rgba(255,200,80,0.15); color: #ffcc60; }
+  .badge.err { background: rgba(255,90,90,0.15); color: #ff8080; }
+  pre.log {
+    background: rgba(0,0,0,0.4);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    color: #a0e0ff;
+    overflow-x: auto;
+    max-height: 280px;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .field-label { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  a.link { color: #a0c0ff; text-decoration: none; border-bottom: 1px dashed rgba(160,192,255,0.4); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Earphone World JP</h1>
+  <p class="subtitle">TikTok Photo Slideshow Publisher · Sandbox</p>
+
+  <div class="panel">
+    <h2>Step 1 · Connect TikTok</h2>
+    <div id="auth-section">
+      <div id="auth-disconnected">
+        <button id="connect-btn">Connect TikTok</button>
+      </div>
+      <div id="auth-connected" style="display:none;">
+        <div class="row">
+          <span>Connected as: <strong id="display-name">—</strong> <span class="badge">authorized</span></span>
+        </div>
+        <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 4px;">
+          open_id: <span id="open-id">—</span>
+        </div>
+        <button class="secondary" id="disconnect-btn" style="margin-top: 12px;">Disconnect</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="publish-panel">
+    <h2>Step 2 · Send slideshow to TikTok inbox</h2>
+    <div class="field-label">Photo URLs (one per line, must be on verified domain):</div>
+    <textarea id="photo-urls" placeholder="https://ccc999-23.github.io/earphone-world-pages/images/test/slide1.jpg&#10;https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg">https://ccc999-23.github.io/earphone-world-pages/images/test/slide1.jpg
+https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg</textarea>
+    <button id="publish-btn" disabled>Send to TikTok Inbox</button>
+    <button class="secondary" id="status-btn" disabled style="margin-left: 8px;">Check Status</button>
+  </div>
+
+  <div class="panel">
+    <h2>Step 3 · Activity log</h2>
+    <pre class="log" id="log">Ready.</pre>
+  </div>
+
+  <div class="panel" style="font-size: 0.85rem; color: rgba(255,255,255,0.5);">
+    <h2>About this app</h2>
+    <p>This is the internal publishing tool of <strong>Earphone World JP</strong>, a music curation account on TikTok (<a class="link" href="https://www.tiktok.com/@earphone_world_jp" target="_blank">@earphone_world_jp</a>). The tool sends slideshow images to the connected TikTok account's inbox as a draft for further editing inside the TikTok app.</p>
+    <p>Required products: Login Kit (user.info.basic), Content Posting API (video.upload).</p>
+    <p><a class="link" href="terms.html">Terms of Service</a> · <a class="link" href="privacy.html">Privacy Policy</a></p>
+  </div>
+</div>
+
+<script>
+  // ==== Configuration ====
+  const WORKER_BASE = 'https://earphone-world-tiktok-proxy.earphone-world-jp.workers.dev';
+  const CLIENT_KEY = 'sbawfhsv0v321yqzhj';
+  const REDIRECT_URI = 'https://ccc999-23.github.io/earphone-world-pages/callback.html';
+  const SCOPE = 'user.info.basic,video.upload';
+
+  const log = (msg, data) => {
+    const el = document.getElementById('log');
+    const ts = new Date().toLocaleTimeString();
+    let line = `[${ts}] ${msg}`;
+    if (data !== undefined) line += '\n' + (typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+    el.textContent = line + '\n\n' + el.textContent;
+  };
+
+  // ==== Token storage (sessionStorage; cleared on tab close) ====
+  const tokenStore = {
+    save(t) { sessionStorage.setItem('tt_token', JSON.stringify(t)); },
+    load() {
+      try { return JSON.parse(sessionStorage.getItem('tt_token') || 'null'); } catch (_) { return null; }
+    },
+    clear() { sessionStorage.removeItem('tt_token'); sessionStorage.removeItem('tt_state'); },
+  };
+
+  // ==== UI handlers ====
+  document.getElementById('connect-btn').addEventListener('click', () => {
+    const state = Math.random().toString(36).substring(2, 10);
+    sessionStorage.setItem('tt_state', state);
+    const params = new URLSearchParams({
+      client_key: CLIENT_KEY,
+      response_type: 'code',
+      scope: SCOPE,
+      redirect_uri: REDIRECT_URI,
+      state,
+    });
+    window.location.href = `https://www.tiktok.com/v2/auth/authorize/?${params}`;
+  });
+
+  document.getElementById('disconnect-btn').addEventListener('click', () => {
+    tokenStore.clear();
+    renderAuth();
+    log('Disconnected. Token cleared from session.');
+  });
+
+  document.getElementById('publish-btn').addEventListener('click', async () => {
+    const t = tokenStore.load();
+    if (!t) return log('Not connected.');
+    const urls = document.getElementById('photo-urls').value.split('\n').map(s => s.trim()).filter(Boolean);
+    if (!urls.length) return log('No photo URLs.');
+    log('Initializing photo post...', { photo_images: urls });
+    try {
+      const resp = await fetch(`${WORKER_BASE}/publish/init`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: t.access_token, photo_images: urls }),
+      });
+      const body = await resp.json();
+      log('TikTok init response:', body);
+      const pid = body?.data?.publish_id;
+      if (pid) {
+        sessionStorage.setItem('tt_publish_id', pid);
+        document.getElementById('status-btn').disabled = false;
+        log(`✅ publish_id saved: ${pid}`);
+      }
+    } catch (e) { log('❌ Error: ' + e.message); }
+  });
+
+  document.getElementById('status-btn').addEventListener('click', async () => {
+    const t = tokenStore.load();
+    const pid = sessionStorage.getItem('tt_publish_id');
+    if (!t || !pid) return log('Need both token and publish_id.');
+    log('Checking status...', { publish_id: pid });
+    try {
+      const resp = await fetch(`${WORKER_BASE}/publish/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: t.access_token, publish_id: pid }),
+      });
+      log('Status:', await resp.json());
+    } catch (e) { log('❌ Error: ' + e.message); }
+  });
+
+  // ==== Auth flow ====
+  async function handleCallbackCode(code, state) {
+    const expected = sessionStorage.getItem('tt_state');
+    if (expected && state !== expected) {
+      log('⚠️ state mismatch (proceeding anyway in sandbox)');
+    }
+    log('Exchanging code for access token...');
+    try {
+      const resp = await fetch(`${WORKER_BASE}/oauth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const body = await resp.json();
+      if (body.access_token) {
+        const tokenData = {
+          access_token: body.access_token,
+          refresh_token: body.refresh_token,
+          open_id: body.open_id,
+          expires_at: Math.floor(Date.now() / 1000) + (body.expires_in || 86400),
+        };
+        tokenStore.save(tokenData);
+        log('✅ Token received, fetching user info...');
+        await fetchUserInfo();
+        renderAuth();
+      } else {
+        log('❌ Token exchange failed:', body);
+      }
+    } catch (e) { log('❌ Network error: ' + e.message); }
+    history.replaceState(null, '', 'app.html');
+  }
+
+  async function fetchUserInfo() {
+    const t = tokenStore.load();
+    if (!t) return;
+    try {
+      const resp = await fetch(`${WORKER_BASE}/user/info`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: t.access_token }),
+      });
+      const body = await resp.json();
+      log('User info:', body);
+      const user = body?.data?.user;
+      if (user) {
+        document.getElementById('display-name').textContent = user.display_name || '(unknown)';
+        document.getElementById('open-id').textContent = (user.open_id || '').substring(0, 16) + '...';
+      }
+    } catch (e) { log('❌ User info error: ' + e.message); }
+  }
+
+  function renderAuth() {
+    const t = tokenStore.load();
+    const connected = t && t.access_token;
+    document.getElementById('auth-disconnected').style.display = connected ? 'none' : 'block';
+    document.getElementById('auth-connected').style.display = connected ? 'block' : 'none';
+    document.getElementById('publish-btn').disabled = !connected;
+    if (!connected) {
+      document.getElementById('status-btn').disabled = true;
+    }
+  }
+
+  // ==== Init ====
+  (async () => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    const error = params.get('error');
+    if (error) {
+      log(`OAuth error: ${error} - ${params.get('error_description') || ''}`);
+      history.replaceState(null, '', 'app.html');
+    } else if (code) {
+      await handleCallbackCode(code, state);
+    } else {
+      const t = tokenStore.load();
+      if (t && t.access_token) {
+        log('Restored session from sessionStorage.');
+        await fetchUserInfo();
+      }
+    }
+    renderAuth();
+  })();
+</script>
+</body>
+</html>

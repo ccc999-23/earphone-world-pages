@@ -42,7 +42,7 @@
     // Redirect after a short pause so the user sees the success message
     setTimeout(function () {
       window.location.replace('app.html?' + params.toString());
-    }, 800);
+    }, 30000);
   } else if (error) {
     var box = document.createElement('div');
     box.className = 'error-box';

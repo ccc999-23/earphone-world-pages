@@ -38,13 +38,13 @@
     font-weight: 500;
   }
   button:hover { transform: translateY(-1px); }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
   .secondary {
     background: transparent;
     border: 1px solid rgba(255,255,255,0.25);
     color: #d0d0e0;
   }
-  textarea, input[type="text"] {
+  textarea, input[type="text"], select {
     width: 100%;
     background: rgba(0,0,0,0.3);
     border: 1px solid rgba(255,255,255,0.15);
@@ -55,6 +55,7 @@
     font-size: 0.9rem;
     margin-bottom: 8px;
   }
+  select option { background: #1a1230; color: #e8e8f0; }
   textarea { min-height: 80px; resize: vertical; }
   .badge {
     display: inline-block;
@@ -65,8 +66,6 @@
     color: #80f5a0;
     margin-left: 8px;
   }
-  .badge.warn { background: rgba(255,200,80,0.15); color: #ffcc60; }
-  .badge.err { background: rgba(255,90,90,0.15); color: #ff8080; }
   pre.log {
     background: rgba(0,0,0,0.4);
     border-radius: 6px;
@@ -82,59 +81,258 @@
   .field-label { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
   .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
   a.link { color: #a0c0ff; text-decoration: none; border-bottom: 1px dashed rgba(160,192,255,0.4); }
+
+  /* Mode tabs */
+  .mode-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .mode-tab {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mode-tab.active {
+    background: rgba(144,112,248,0.2);
+    border-color: #9070f8;
+    color: #d0c0ff;
+    transform: none;
+  }
+  .mode-tab:hover { transform: none; border-color: rgba(144,112,248,0.5); }
+
+  /* Creator card */
+  .creator-card {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: rgba(144,112,248,0.08);
+    border: 1px solid rgba(144,112,248,0.25);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+  .creator-card img {
+    width: 40px; height: 40px; border-radius: 50%;
+    object-fit: cover; background: rgba(255,255,255,0.1);
+  }
+  .creator-name { font-weight: 600; font-size: 0.95rem; }
+  .creator-sub { font-size: 0.75rem; color: rgba(255,255,255,0.45); }
+
+  /* Section title */
+  .section-title {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.35);
+    margin: 16px 0 8px;
+  }
+
+  /* Toggle rows */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .toggle-row:last-of-type { border-bottom: none; }
+  .toggle-label { font-size: 0.9rem; }
+  .toggle-desc { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .toggle-switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-switch .slider {
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0.15);
+    border-radius: 11px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle-switch .slider:before {
+    content: ''; position: absolute;
+    width: 16px; height: 16px; left: 3px; top: 3px;
+    background: #fff; border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .toggle-switch input:checked + .slider { background: #9070f8; }
+  .toggle-switch input:checked + .slider:before { transform: translateX(18px); }
+
+  /* Checkbox list */
+  .check-list { list-style: none; padding: 0; margin: 0 0 12px; }
+  .check-list li { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 0.9rem; }
+  .check-list li input { width: 16px; height: 16px; cursor: pointer; accent-color: #9070f8; flex-shrink: 0; }
+
+  /* Music notice */
+  .music-notice {
+    background: rgba(255,200,80,0.08);
+    border: 1px solid rgba(255,200,80,0.2);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  /* Direct post warning */
+  .direct-warning {
+    background: rgba(255,120,50,0.1);
+    border: 1px solid rgba(255,120,50,0.25);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.82rem;
+    color: #ffb080;
+    margin-bottom: 14px;
+  }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>Earphone World JP</h1>
-  <p class="subtitle">TikTok Photo Slideshow Publisher · Sandbox</p>
+  <p class="subtitle">TikTok Photo Slideshow Publisher</p>
 
+  <!-- Step 1: Auth -->
   <div class="panel">
     <h2>Step 1 · Connect TikTok</h2>
-    <div id="auth-section">
-      <div id="auth-disconnected">
-        <button id="connect-btn">Connect TikTok</button>
+    <div id="auth-disconnected">
+      <button id="connect-btn">Connect TikTok</button>
+    </div>
+    <div id="auth-connected" style="display:none;">
+      <div class="row">
+        <span>Connected as: <strong id="display-name">—</strong> <span class="badge">authorized</span></span>
       </div>
-      <div id="auth-connected" style="display:none;">
-        <div class="row">
-          <span>Connected as: <strong id="display-name">—</strong> <span class="badge">authorized</span></span>
-        </div>
-        <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 4px;">
-          open_id: <span id="open-id">—</span>
-        </div>
-        <button class="secondary" id="disconnect-btn" style="margin-top: 12px;">Disconnect</button>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-top:4px;">
+        open_id: <span id="open-id">—</span>
       </div>
+      <button class="secondary" id="disconnect-btn" style="margin-top:12px;">Disconnect</button>
     </div>
   </div>
 
-  <div class="panel" id="publish-panel">
-    <h2>Step 2 · Send slideshow to TikTok inbox</h2>
-    <div class="field-label">Photo URLs (one per line, must be on verified domain):</div>
-    <textarea id="photo-urls" placeholder="https://ccc999-23.github.io/earphone-world-pages/images/test/slide1.jpg&#10;https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg">https://ccc999-23.github.io/earphone-world-pages/images/test/slide1.jpg
+  <!-- Step 2: Publish -->
+  <div class="panel">
+    <h2>Step 2 · Publish slideshow</h2>
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-draft" onclick="setMode('draft')">📥 Inbox Draft</button>
+      <button class="mode-tab" id="tab-direct" onclick="setMode('direct')">🚀 Direct Post</button>
+    </div>
+
+    <!-- Draft mode -->
+    <div id="draft-form">
+      <div class="field-label">Photo URLs (one per line, must be on verified domain):</div>
+      <textarea id="photo-urls">https://ccc999-23.github.io/earphone-world-pages/images/test/slide1.jpg
 https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg</textarea>
-    <button id="publish-btn" disabled>Send to TikTok Inbox</button>
-    <button class="secondary" id="status-btn" disabled style="margin-left: 8px;">Check Status</button>
+      <div class="row">
+        <button id="publish-btn" disabled>Send to TikTok Inbox</button>
+        <button class="secondary" id="status-btn" disabled style="margin-left:8px;">Check Status</button>
+      </div>
+    </div>
+
+    <!-- Direct Post mode -->
+    <div id="direct-form" style="display:none;">
+      <div class="direct-warning">⚠️ Direct Post publishes immediately to your TikTok profile via video.publish. This cannot be undone from this app.</div>
+
+      <!-- Creator info card (auto-populated) -->
+      <div id="creator-card" class="creator-card">
+        <img id="creator-avatar" src="" alt="avatar">
+        <div>
+          <div class="creator-name" id="creator-nickname">Loading…</div>
+          <div class="creator-sub">Posting to this account via video.publish</div>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="field-label">Title *</div>
+      <input type="text" id="direct-title" maxlength="150" placeholder="Enter a title for your post">
+
+      <!-- Privacy level -->
+      <div class="field-label">Who can view this post *</div>
+      <select id="privacy-level">
+        <option value="">— Select privacy level —</option>
+      </select>
+
+      <!-- Photo URLs -->
+      <div class="field-label">Photo URLs (one per line):</div>
+      <textarea id="direct-photo-urls">https://ccc999-23.github.io/earphone-world-pages/images/test/slide1.jpg
+https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg</textarea>
+
+      <!-- Disclose content -->
+      <div class="section-title">Disclose content</div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Your Brand</div>
+          <div class="toggle-desc">You are promoting your own brand or product</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="brand-organic">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Branded Content</div>
+          <div class="toggle-desc">You received compensation from a brand for this post</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="brand-content">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Interaction settings -->
+      <div class="section-title">Allow viewers to</div>
+      <ul class="check-list">
+        <li><input type="checkbox" id="allow-comment" checked> <label for="allow-comment">Comment</label></li>
+        <li><input type="checkbox" id="allow-duet" checked> <label for="allow-duet">Duet</label></li>
+        <li><input type="checkbox" id="allow-stitch" checked> <label for="allow-stitch">Stitch</label></li>
+      </ul>
+
+      <!-- Music usage confirmation -->
+      <div class="music-notice">
+        🎵 <strong>Music Usage</strong><br>
+        By posting this content, you confirm that you have all necessary rights to use any music included, or that your content does not include music that requires licensing.
+      </div>
+      <ul class="check-list">
+        <li>
+          <input type="checkbox" id="music-confirm">
+          <label for="music-confirm">I confirm I have the rights to use any music in this content</label>
+        </li>
+      </ul>
+
+      <button id="direct-btn" disabled>Post Directly to Profile (video.publish)</button>
+    </div>
   </div>
 
+  <!-- Step 3: Log -->
   <div class="panel">
     <h2>Step 3 · Activity log</h2>
     <pre class="log" id="log">Ready.</pre>
   </div>
 
-  <div class="panel" style="font-size: 0.85rem; color: rgba(255,255,255,0.5);">
+  <!-- About -->
+  <div class="panel" style="font-size:0.85rem;color:rgba(255,255,255,0.5);">
     <h2>About this app</h2>
-    <p>This is the internal publishing tool of <strong>Earphone World JP</strong>, a music curation account on TikTok (<a class="link" href="https://www.tiktok.com/@earphone_world_jp" target="_blank">@earphone_world_jp</a>). The tool sends slideshow images to the connected TikTok account's inbox as a draft for further editing inside the TikTok app.</p>
-    <p>Required products: Login Kit (user.info.basic), Content Posting API (video.upload).</p>
+    <p>Internal publishing tool for <strong>Earphone World JP</strong> (<a class="link" href="https://www.tiktok.com/@earphone_world_jp" target="_blank">@earphone_world_jp</a>). Supports two modes: <strong>Inbox Draft</strong> (video.upload — saves to creator inbox for review before posting) and <strong>Direct Post</strong> (video.publish — publishes a photo slideshow directly to the connected account's TikTok profile).</p>
+    <p>Required products: Login Kit (user.info.basic), Content Posting API (video.upload, video.publish).</p>
     <p><a class="link" href="terms.html">Terms of Service</a> · <a class="link" href="privacy.html">Privacy Policy</a></p>
   </div>
 </div>
 
 <script>
-  // ==== Configuration ====
   const WORKER_BASE = 'https://earphone-world-tiktok-proxy.earphone-world-jp.workers.dev';
   const CLIENT_KEY = 'sbawfhsv0v321yqzhj';
   const REDIRECT_URI = 'https://ccc999-23.github.io/earphone-world-pages/callback.html';
-  const SCOPE = 'user.info.basic,video.upload';
+  const SCOPE = 'user.info.basic,video.upload,video.publish';
+
+  const PRIVACY_LABELS = {
+    PUBLIC_TO_EVERYONE: 'Everyone (Public)',
+    FOLLOWER_OF_CREATOR: 'Followers',
+    MUTUAL_FOLLOW_FRIENDS: 'Friends (Mutual follows)',
+    SELF_ONLY: 'Only me — recommended for testing',
+  };
+
+  let currentMode = 'draft';
+  let creatorInfo = null;
 
   const log = (msg, data) => {
     const el = document.getElementById('log');
@@ -144,41 +342,98 @@ https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg</textare
     el.textContent = line + '\n\n' + el.textContent;
   };
 
-  // ==== Token storage (sessionStorage; cleared on tab close) ====
+  // ==== Mode ====
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('tab-draft').classList.toggle('active', mode === 'draft');
+    document.getElementById('tab-direct').classList.toggle('active', mode === 'direct');
+    document.getElementById('draft-form').style.display = mode === 'draft' ? 'block' : 'none';
+    document.getElementById('direct-form').style.display = mode === 'direct' ? 'block' : 'none';
+    if (mode === 'direct' && !creatorInfo) fetchCreatorInfo();
+  }
+
+  // ==== Token storage ====
   const tokenStore = {
     save(t) { sessionStorage.setItem('tt_token', JSON.stringify(t)); },
-    load() {
-      try { return JSON.parse(sessionStorage.getItem('tt_token') || 'null'); } catch (_) { return null; }
-    },
-    clear() { sessionStorage.removeItem('tt_token'); sessionStorage.removeItem('tt_state'); },
+    load() { try { return JSON.parse(sessionStorage.getItem('tt_token') || 'null'); } catch (_) { return null; } },
+    clear() { sessionStorage.removeItem('tt_token'); sessionStorage.removeItem('tt_state'); sessionStorage.removeItem('tt_publish_id'); },
   };
 
-  // ==== UI handlers ====
+  // ==== Creator info (UX Guidelines requirement) ====
+  async function fetchCreatorInfo() {
+    const t = tokenStore.load();
+    if (!t) return;
+    log('Fetching creator info for Direct Post...');
+    try {
+      const resp = await fetch(`${WORKER_BASE}/creator/info`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: t.access_token }),
+      });
+      const body = await resp.json();
+      log('Creator info response:', body);
+      const data = body?.data;
+      if (data) {
+        creatorInfo = data;
+        // Show creator card
+        if (data.creator_nickname) document.getElementById('creator-nickname').textContent = data.creator_nickname;
+        if (data.creator_avatar_url) document.getElementById('creator-avatar').src = data.creator_avatar_url;
+        document.getElementById('creator-card').style.display = 'flex';
+
+        // Populate privacy level options from API response
+        const sel = document.getElementById('privacy-level');
+        sel.innerHTML = '<option value="">— Select privacy level —</option>';
+        const levels = data.privacy_level_options || ['SELF_ONLY'];
+        levels.forEach(lvl => {
+          const opt = document.createElement('option');
+          opt.value = lvl;
+          opt.textContent = PRIVACY_LABELS[lvl] || lvl;
+          sel.appendChild(opt);
+        });
+
+        // Apply creator-level constraints
+        if (data.comment_disabled) { document.getElementById('allow-comment').checked = false; document.getElementById('allow-comment').disabled = true; }
+        if (data.duet_disabled) { document.getElementById('allow-duet').checked = false; document.getElementById('allow-duet').disabled = true; }
+        if (data.stitch_disabled) { document.getElementById('allow-stitch').checked = false; document.getElementById('allow-stitch').disabled = true; }
+
+        updateDirectBtn();
+      }
+    } catch (e) { log('❌ Creator info error: ' + e.message); }
+  }
+
+  function updateDirectBtn() {
+    const t = tokenStore.load();
+    const connected = !!(t && t.access_token);
+    const privacy = document.getElementById('privacy-level').value;
+    const title = document.getElementById('direct-title').value.trim();
+    const music = document.getElementById('music-confirm').checked;
+    document.getElementById('direct-btn').disabled = !(connected && privacy && title && music);
+  }
+
+  // ==== Auth ====
   document.getElementById('connect-btn').addEventListener('click', () => {
     const state = Math.random().toString(36).substring(2, 10);
     sessionStorage.setItem('tt_state', state);
-    const params = new URLSearchParams({
-      client_key: CLIENT_KEY,
-      response_type: 'code',
-      scope: SCOPE,
-      redirect_uri: REDIRECT_URI,
-      state,
-    });
+    const params = new URLSearchParams({ client_key: CLIENT_KEY, response_type: 'code', scope: SCOPE, redirect_uri: REDIRECT_URI, state });
     window.location.href = `https://www.tiktok.com/v2/auth/authorize/?${params}`;
   });
 
   document.getElementById('disconnect-btn').addEventListener('click', () => {
     tokenStore.clear();
+    creatorInfo = null;
+    document.getElementById('creator-card').style.display = 'none';
+    document.getElementById('creator-nickname').textContent = 'Loading…';
     renderAuth();
-    log('Disconnected. Token cleared from session.');
+    log('Disconnected.');
   });
 
+  // ==== Draft Post ====
   document.getElementById('publish-btn').addEventListener('click', async () => {
     const t = tokenStore.load();
     if (!t) return log('Not connected.');
     const urls = document.getElementById('photo-urls').value.split('\n').map(s => s.trim()).filter(Boolean);
     if (!urls.length) return log('No photo URLs.');
-    log('Initializing photo post...', { photo_images: urls });
+    log('Initializing photo post (MEDIA_UPLOAD / video.upload)...', { photo_count: urls.length });
     try {
       const resp = await fetch(`${WORKER_BASE}/publish/init`, {
         method: 'POST',
@@ -186,21 +441,16 @@ https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg</textare
         body: JSON.stringify({ access_token: t.access_token, photo_images: urls }),
       });
       const body = await resp.json();
-      log('TikTok init response:', body);
+      log('TikTok response:', body);
       const pid = body?.data?.publish_id;
-      if (pid) {
-        sessionStorage.setItem('tt_publish_id', pid);
-        document.getElementById('status-btn').disabled = false;
-        log(`✅ publish_id saved: ${pid}`);
-      }
+      if (pid) { sessionStorage.setItem('tt_publish_id', pid); document.getElementById('status-btn').disabled = false; log(`✅ publish_id: ${pid}`); }
     } catch (e) { log('❌ Error: ' + e.message); }
   });
 
   document.getElementById('status-btn').addEventListener('click', async () => {
     const t = tokenStore.load();
     const pid = sessionStorage.getItem('tt_publish_id');
-    if (!t || !pid) return log('Need both token and publish_id.');
-    log('Checking status...', { publish_id: pid });
+    if (!t || !pid) return log('Need token and publish_id.');
     try {
       const resp = await fetch(`${WORKER_BASE}/publish/status`, {
         method: 'POST',
@@ -211,13 +461,51 @@ https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg</textare
     } catch (e) { log('❌ Error: ' + e.message); }
   });
 
-  // ==== Auth flow ====
+  // ==== Direct Post ====
+  document.getElementById('direct-btn').addEventListener('click', async () => {
+    const t = tokenStore.load();
+    if (!t) return log('Not connected.');
+    const urls = document.getElementById('direct-photo-urls').value.split('\n').map(s => s.trim()).filter(Boolean);
+    if (!urls.length) return log('No photo URLs.');
+    const privacy = document.getElementById('privacy-level').value;
+    if (!privacy) return log('Select a privacy level.');
+    const title = document.getElementById('direct-title').value.trim();
+    if (!title) return log('Title is required.');
+    if (!document.getElementById('music-confirm').checked) return log('Please confirm music usage rights.');
+
+    const payload = {
+      access_token: t.access_token,
+      photo_images: urls,
+      title,
+      privacy_level: privacy,
+      disable_comment: !document.getElementById('allow-comment').checked,
+      disable_duet: !document.getElementById('allow-duet').checked,
+      disable_stitch: !document.getElementById('allow-stitch').checked,
+      brand_organic_toggle: document.getElementById('brand-organic').checked,
+      brand_content_toggle: document.getElementById('brand-content').checked,
+    };
+    log('Initializing Direct Post (DIRECT_POST / video.publish)...', { privacy_level: privacy, title, photo_count: urls.length });
+    try {
+      const resp = await fetch(`${WORKER_BASE}/publish/direct`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const body = await resp.json();
+      log('TikTok Direct Post response:', body);
+      if (body?.data?.publish_id) log(`✅ Direct post initiated. publish_id: ${body.data.publish_id}`);
+    } catch (e) { log('❌ Error: ' + e.message); }
+  });
+
+  // Dynamic validation
+  ['privacy-level', 'music-confirm'].forEach(id => document.getElementById(id).addEventListener('change', updateDirectBtn));
+  document.getElementById('direct-title').addEventListener('input', updateDirectBtn);
+
+  // ==== OAuth callback ====
   async function handleCallbackCode(code, state) {
     const expected = sessionStorage.getItem('tt_state');
-    if (expected && state !== expected) {
-      log('⚠️ state mismatch (proceeding anyway in sandbox)');
-    }
-    log('Exchanging code for access token...');
+    if (expected && state !== expected) log('⚠️ state mismatch');
+    log('Exchanging code for token...');
     try {
       const resp = await fetch(`${WORKER_BASE}/oauth/token`, {
         method: 'POST',
@@ -226,16 +514,11 @@ https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg</textare
       });
       const body = await resp.json();
       if (body.access_token) {
-        const tokenData = {
-          access_token: body.access_token,
-          refresh_token: body.refresh_token,
-          open_id: body.open_id,
-          expires_at: Math.floor(Date.now() / 1000) + (body.expires_in || 86400),
-        };
-        tokenStore.save(tokenData);
+        tokenStore.save({ access_token: body.access_token, refresh_token: body.refresh_token, open_id: body.open_id, expires_at: Math.floor(Date.now() / 1000) + (body.expires_in || 86400) });
         log('✅ Token received, fetching user info...');
         await fetchUserInfo();
         renderAuth();
+        if (currentMode === 'direct') await fetchCreatorInfo();
       } else {
         log('❌ Token exchange failed:', body);
       }
@@ -264,32 +547,23 @@ https://ccc999-23.github.io/earphone-world-pages/images/test/slide2.jpg</textare
 
   function renderAuth() {
     const t = tokenStore.load();
-    const connected = t && t.access_token;
+    const connected = !!(t && t.access_token);
     document.getElementById('auth-disconnected').style.display = connected ? 'none' : 'block';
     document.getElementById('auth-connected').style.display = connected ? 'block' : 'none';
     document.getElementById('publish-btn').disabled = !connected;
-    if (!connected) {
-      document.getElementById('status-btn').disabled = true;
-    }
+    if (!connected) { document.getElementById('status-btn').disabled = true; document.getElementById('direct-btn').disabled = true; }
+    else updateDirectBtn();
   }
 
   // ==== Init ====
   (async () => {
     const params = new URLSearchParams(location.search);
-    const code = params.get('code');
-    const state = params.get('state');
-    const error = params.get('error');
-    if (error) {
-      log(`OAuth error: ${error} - ${params.get('error_description') || ''}`);
-      history.replaceState(null, '', 'app.html');
-    } else if (code) {
-      await handleCallbackCode(code, state);
-    } else {
+    const code = params.get('code'), state = params.get('state'), error = params.get('error');
+    if (error) { log(`OAuth error: ${error} - ${params.get('error_description') || ''}`); history.replaceState(null, '', 'app.html'); }
+    else if (code) { await handleCallbackCode(code, state); }
+    else {
       const t = tokenStore.load();
-      if (t && t.access_token) {
-        log('Restored session from sessionStorage.');
-        await fetchUserInfo();
-      }
+      if (t && t.access_token) { log('Restored session.'); await fetchUserInfo(); }
     }
     renderAuth();
   })();

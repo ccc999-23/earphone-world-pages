@@ -7,10 +7,13 @@
 <style>
   body { font-family: system-ui, sans-serif; max-width: 680px; margin: 60px auto; padding: 0 24px; color: #111; line-height: 1.7; }
   h1 { font-size: 1.3rem; margin-bottom: 24px; }
-  .code-box { background: #e8f4e8; border: 1px solid #4caf50; border-radius: 8px; padding: 16px; margin: 16px 0; word-break: break-all; font-family: monospace; font-size: 0.9rem; }
+  .code-box { background: #e8f4e8; border: 1px solid #4caf50; border-radius: 8px; padding: 16px; margin: 16px 0; word-break: break-all; font-family: monospace; font-size: 1rem; }
   .error-box { background: #fdecea; border: 1px solid #e53935; border-radius: 8px; padding: 16px; margin: 16px 0; }
   .label { font-size: 0.8rem; color: #555; margin-bottom: 4px; }
   .info-box { background: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 0.9rem; }
+  .btn { display: inline-block; background: #111; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-size: 1rem; cursor: pointer; margin: 8px 8px 8px 0; }
+  .btn.secondary { background: #fff; color: #111; border: 1px solid #ccc; }
+  .copied { color: #2e7d32; font-size: 0.85rem; margin-left: 8px; }
 </style>
 </head>
 <body>
@@ -24,25 +27,54 @@
   var div = document.getElementById('content');
 
   if (code) {
-    // Auto-redirect to app.html with code preserved
     var info = document.createElement('div');
     info.className = 'info-box';
-    info.textContent = 'Authorization successful. Redirecting to app...';
+    info.textContent = 'Authorization successful. Copy the code below and paste it back to continue.';
     div.appendChild(info);
 
     var label = document.createElement('div');
     label.className = 'label';
-    label.textContent = 'code (for manual copy if needed):';
+    label.textContent = 'authorization code:';
     var box = document.createElement('div');
     box.className = 'code-box';
+    box.id = 'codeBox';
     box.textContent = code;
     div.appendChild(label);
     div.appendChild(box);
 
-    // Redirect after a short pause so the user sees the success message
-    setTimeout(function () {
-      window.location.replace('app.html?' + params.toString());
-    }, 1500);
+    var copyBtn = document.createElement('button');
+    copyBtn.className = 'btn';
+    copyBtn.textContent = 'Copy code';
+    var copied = document.createElement('span');
+    copied.className = 'copied';
+    copied.textContent = '';
+    copyBtn.onclick = function () {
+      var doCopy = function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(code);
+        }
+        return Promise.reject();
+      };
+      doCopy().then(function () {
+        copied.textContent = 'Copied!';
+      }).catch(function () {
+        // Fallback: select the text so the user can copy manually
+        var r = document.createRange();
+        r.selectNodeContents(document.getElementById('codeBox'));
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+        copied.textContent = 'Selected — press Cmd/Ctrl+C';
+      });
+    };
+    div.appendChild(copyBtn);
+    div.appendChild(copied);
+
+    var appLink = document.createElement('a');
+    appLink.className = 'btn secondary';
+    appLink.textContent = 'Open app →';
+    appLink.href = 'app.html?' + params.toString();
+    div.appendChild(appLink);
   } else if (error) {
     var box = document.createElement('div');
     box.className = 'error-box';
